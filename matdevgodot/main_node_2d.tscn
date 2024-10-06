@@ -1,0 +1,123 @@
+[gd_scene load_steps=15 format=4 uid="uid://cua2h4qw64cu"]
+
+[ext_resource type="Texture2D" uid="uid://dcjuonl7w42fj" path="res://assets/Boss1.png" id="1_i4r77"]
+[ext_resource type="Texture2D" uid="uid://bmscxdp34bnvy" path="res://assets/terrain1.png" id="2_ixn2c"]
+[ext_resource type="Texture2D" uid="uid://du3peejkebqs6" path="res://assets/effects/2d_lights_and_shadows_neutral_point_light.webp" id="3_ode34"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_egji0"]
+atlas = ExtResource("1_i4r77")
+region = Rect2(16, 32, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u87tl"]
+atlas = ExtResource("1_i4r77")
+region = Rect2(32, 32, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j410p"]
+atlas = ExtResource("1_i4r77")
+region = Rect2(0, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vllba"]
+atlas = ExtResource("1_i4r77")
+region = Rect2(16, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lu2bv"]
+atlas = ExtResource("1_i4r77")
+region = Rect2(32, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tws07"]
+atlas = ExtResource("1_i4r77")
+region = Rect2(0, 32, 16, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_sqkki"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_egji0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u87tl")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j410p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vllba")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lu2bv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tws07")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iarbc"]
+size = Vector2(13.5, 16)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4gtcd"]
+resource_name = "base"
+texture = ExtResource("2_ixn2c")
+2:0/0 = 0
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+4:0/0 = 0
+4:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -4.8125, 0.9375, -4.9375, 0.75, 7.3125, -0.875, 7.375, -1.125, -5.125, -8, -4.75)
+5:0/0 = 0
+5:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-13.3125, -10.1875, -7.3125, -8, 8.4375, -8.4375, 8, -5.8125, 6.0625, -4.8125, 6.375, 8.6875, 4.8125, 8, 3.375, -4.6875, -3.5625, -4.8125, -3.875, 8, -5.875, 8, -6.125, -4.5, -8, -4.5, -8, -8)
+4:1/0 = 0
+5:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_iw7ay"]
+physics_layer_0/collision_layer = 3
+physics_layer_0/collision_mask = 3
+sources/0 = SubResource("TileSetAtlasSource_4gtcd")
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_3w123"]
+polygon = PackedVector2Array(0, 32, 32, 32, 32, 0, 0, 0)
+
+[node name="mainNode2D" type="Node2D"]
+
+[node name="Player" type="Player" parent="."]
+jump_velocity = -400.0
+position = Vector2(-1, -141)
+collision_layer = 3
+collision_mask = 3
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player"]
+sprite_frames = SubResource("SpriteFrames_sqkki")
+
+[node name="PointLight2D" type="PointLight2D" parent="Player/AnimatedSprite2D"]
+position = Vector2(-7, -2)
+shadow_enabled = true
+texture = ExtResource("3_ode34")
+texture_scale = 2.0
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+zoom = Vector2(2, 2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(-0.75, 8)
+shape = SubResource("RectangleShape2D_iarbc")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAD9/wMAAAABAAAAAAD+/wMAAAABAAAAAAD//wMAAAABAAAAAAAAAAMAAAABAAAAAAABAAMAAAABAAAAAAACAAMAAAABAAAAAAADAAMAAAABAAAAAAAEAAMAAAABAAAAAAAFAAMAAAABAAAAAAAGAAMAAAABAAAAAAD2/wMAAAABAAAAAAD3/wMAAAABAAAAAAD4/wMAAAABAAAAAAD5/wMAAAABAAAAAAD6/wMAAAABAAAAAAD7/wMAAAABAAAAAAD8/wMAAAABAAAAAAAHAAMAAAABAAAAAAAIAAMAAAABAAAAAAAJAAMAAAABAAAAAAAKAAMAAAABAAAAAAALAAIAAAABAAAAAAAOAAMAAAABAAAAAAANAAMAAAABAAAAAAAMAAMAAAABAAAAAAALAAMAAAABAAAAAAADAAQAAAABAAAAAAACAAQAAAABAAAAAAABAAQAAAABAAAAAAAAAAQAAAABAAAAAAD//wQAAAABAAAAAAD+/wQAAAABAAAAAAD9/wQAAAABAAAAAAD8/wQAAAABAAAAAAD7/wQAAAABAAAAAAD2/wQAAAABAAAAAAD3/wQAAAABAAAAAAD4/wQAAAABAAAAAAD5/wQAAAABAAAAAAD6/wQAAAABAAAAAAAEAAQAAAABAAAAAAAFAAQAAAABAAAAAAAGAAQAAAABAAAAAAAHAAQAAAABAAAAAAAIAAQAAAABAAAAAAAJAAQAAAABAAAAAAAKAAQAAAABAAAAAAALAAQAAAABAAAAAAAMAAQAAAABAAAAAAANAAQAAAABAAAAAAAOAAQAAAABAAAAAAAOAAIAAAABAAAAAAANAAIAAAABAAAAAAAMAAIAAAABAAAAAAD1/wMAAAABAAAAAAD1/wQAAAABAAAAAAD0/wQAAAABAAAAAADz/wQAAAABAAAAAADz/wMAAAABAAAAAAD0/wMAAAABAAAAAAD0/wIAAAABAAAAAAD0/wEAAAABAAAAAAD0/wAAAAABAAAAAAD0////AAABAAAAAADz/wAAAAABAAAAAADz/wEAAAABAAAAAADz/wIAAAABAAAAAADz////AAABAAAAAAD2/wEAAAABAAAAAAD3/wEAAAABAAAAAAD3/wIAAAABAAAAAAD2/wIAAAABAAAAAADx/wAAAAABAAAAAADx////AAABAAAAAADw////AAABAAAAAADw/wAAAAABAAAAAAAQAAEAAAAEAAAAAAARAAEAAAAEAAAAAAASAAEAAAAEAAAAAAATAAEAAAAEAAAAAAAVAP7/AAAFAAAAAAAWAP7/AAAFAAAAAAAXAP7/AAAFAAAAAAAXAP//AAAFAAAAACAWAP//AAAFAAAAACAVAP//AAAFAAAAACATAAIAAAAEAAAAACASAAIAAAAEAAAAACARAAIAAAAEAAAAACAQAAIAAAAEAAAAACA=")
+tile_set = SubResource("TileSet_iw7ay")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+position = Vector2(-161, 16)
+occluder = SubResource("OccluderPolygon2D_3w123")
