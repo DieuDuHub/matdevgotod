@@ -1,20 +1,25 @@
 use godot::{
-    builtin::Vector2,
+    builtin::Vector2,builtin::Vector2i,
     classes::{AnimatedSprite2D, CharacterBody2D, ICharacterBody2D, Input, ProjectSettings},
     global::{godot_print, move_toward},
-    obj::{Base, WithBaseField},
+    obj::{Base, WithBaseField,Gd},
     prelude::{godot_api, GodotClass},
 };
 
+use crate::tileMapRules;
+
 #[derive(GodotClass)]
 #[class(init,base=CharacterBody2D)]
-struct Player {
+struct Player{
     #[export]
     speed: f64,
     #[export]
     jump_velocity: f64,
-
+    #[export]
+    life : f64,
     base: Base<CharacterBody2D>,
+    #[export]
+    node_manager: Option<Gd<tileMapRules::NodeManager>>,
 }
 
 enum MovementDirection {
@@ -33,7 +38,7 @@ impl ICharacterBody2D for Player {
 
             base,
         }
-    }$/
+    }*/
 
     fn physics_process(&mut self, delta: f64) {
         let Vector2 {
@@ -64,6 +69,8 @@ impl ICharacterBody2D for Player {
             }
         };
 
+
+
         // Get input direction
         let direction = input.get_axis("move_left".into(), "move_right".into());
         let movement_direction = match direction {
@@ -91,7 +98,7 @@ impl ICharacterBody2D for Player {
                 MovementDirection::Left | MovementDirection::Right => "walk",
             }
         } else {
-            "attack"
+            "jump"
         };
         animated_sprite.play_ex().name(animation.into()).done();
 
@@ -110,5 +117,24 @@ impl ICharacterBody2D for Player {
         });
 
         self.base_mut().move_and_slide();
+
+       //godot_print!("In process function");
+        // Collision detetction
+       // let position = self.base().get_global_position();
+		//let tile = self.base().get_tree().unwrap().get_current_scene().unwrap().get_node_as("TileMapLayer").get_cellv(self.base().get_tree().unwrap().get_current_scene().unwrap().get_node("TileMapLayer").world_to_map(position));
+        
+        /*
+        let tile_map_layer = self
+            .base()
+            .get_tree()
+            .unwrap()
+            .get_current_scene()
+            .unwrap()
+            .get_node_as::<TileMapPattern>("TileMapLayer");
+            //.unwrap();
+        let p : Vector2i = Vector2i::new(position.x as i32, position.y as i32);
+        let tile = tile_map_layer.get_cell_tile_data(0,p).unwrap();  // Layer Position
+        godot_print!("Tile Value: {}", tile);
+        */
     }
 }

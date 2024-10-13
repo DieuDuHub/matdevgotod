@@ -1,10 +1,10 @@
 #![warn(clippy::all, clippy::pedantic)]
 
 mod player;
-
+mod tileMapRules;
 use godot::{init::ExtensionLibrary, prelude::gdextension};
 
-struct KnightsToSeeYouExtension;
+struct MatDev;
 
 #[gdextension]
-unsafe impl ExtensionLibrary for KnightsToSeeYouExtension {}
+unsafe impl ExtensionLibrary for MatDev {}
