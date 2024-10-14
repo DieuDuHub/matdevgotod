@@ -10,11 +10,11 @@ use godot::{
 #[class(init,base=Node2D)]
 pub struct NodeManager{
     #[export]
+    debug : bool,
+    #[export]
     player: Option<Gd<CharacterBody2D>>,
     base: Base<Node2D>,
-    tile_down : Vector2i,
-    tile_left : Vector2i,
-    tile_right : Vector2i,
+    pub tile_collide : Vec<i32>,
 }
 
 #[godot_api]
@@ -49,22 +49,66 @@ impl INode2D for NodeManager {
 
        // let p : Vector2i = Vector2i::new(position.x as i32, position.y as i32);
         
+        self.tile_collide = Vec::new();
+
         let mut p1 = tile_map_layer.local_to_map(position);
+
+        /*
+        detection following
+
+        *  *
+        *  *
+         * 
+
+        counter-clockwise
+
+        */
+
+       let sizegrid = 32; 
+
+       let mod_vector : Vec<Vector2i> = vec![
+        Vector2i::new(-1,-1),
+        Vector2i::new(-1,0),
+        Vector2i::new(0,1),
+        Vector2i::new(1,0),
+        Vector2i::new(1,-1),
+       ];
+
+       mod_vector.iter().for_each(|v| {
+        let target = p1+ *v;
+           let mut tile = tile_map_layer.get_cell_atlas_coords(0,target); // derefn v before adding
+           if self.debug {godot_print!("Tile: {:?} at x: {}, y:{}" ,tile, target.x, target.y);}
+           self.tile_collide.push(tile.x + tile.y*sizegrid);
+       });
+
+        /*
+        p1.x -= 1;
+        p1.y -= 1;
+        let mut tile = tile_map_layer.get_cell_atlas_coords(0,p1);
+         if self.debug {godot_print!("Tile: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);}
+           self.tile_collide.push(tile.x + tile.y*sizegrid);
         
-        if let tile = tile_map_layer.get_cell_atlas_coords(0,p1) {
-            godot_print!("Tile: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);
-            self.tile_down= tile;
-        }
+        p1.y += 1;
+        let mut tile = tile_map_layer.get_cell_atlas_coords(0,p1);
+         if self.debug {godot_print!("Tile: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);}
+         self.tile_collide.push(tile.x + tile.y*sizegrid);
+        
+        p1.y +=1;
         p1.x += 1;
-        if let tile = tile_map_layer.get_cell_atlas_coords(0,p1) {
-            godot_print!("TileR: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);
-            self.tile_right= tile;
-        }
-        p1.x -= 2;
-        if let tile = tile_map_layer.get_cell_atlas_coords(0,p1) {
-            godot_print!("TileL: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);
-            self.tile_left= tile;
-        }
+        tile = tile_map_layer.get_cell_atlas_coords(0,p1);
+        if self.debug {   godot_print!("TileR: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);}
+        self.tile_collide.push(tile.x + tile.y*sizegrid);
+
+        p1.x += 1;
+        p1.y -= 1 ;
+        tile = tile_map_layer.get_cell_atlas_coords(0,p1);
+        if self.debug {   godot_print!("TileL: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);}
+        self.tile_collide.push(tile.x + tile.y*sizegrid);        
         
+        p1.y -= 1 ;
+        tile = tile_map_layer.get_cell_atlas_coords(0,p1);
+        if self.debug {   godot_print!("TileL: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);}
+        self.tile_collide.push(tile.x + tile.y*sizegrid);
+        */
     }
 }

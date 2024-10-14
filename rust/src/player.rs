@@ -1,6 +1,6 @@
 use godot::{
     builtin::Vector2,builtin::Vector2i,
-    classes::{AnimatedSprite2D, CharacterBody2D, ICharacterBody2D, Input, ProjectSettings},
+    classes::{AnimatedSprite2D, Node2D, CharacterBody2D,Sprite2D, ICharacterBody2D, Input, ProjectSettings,AnimationPlayer},
     global::{godot_print, move_toward},
     obj::{Base, WithBaseField,Gd},
     prelude::{godot_api, GodotClass},
@@ -12,6 +12,8 @@ use crate::tileMapRules;
 #[class(init,base=CharacterBody2D)]
 struct Player{
     #[export]
+    debug : bool,
+    #[export]
     speed: f64,
     #[export]
     jump_velocity: f64,
@@ -19,13 +21,27 @@ struct Player{
     life : f64,
     base: Base<CharacterBody2D>,
     #[export]
-    node_manager: Option<Gd<tileMapRules::NodeManager>>,
+    node_manager: Option<Gd<Node2D>>,
+    status : PlayerState,
 }
 
 enum MovementDirection {
     Left,
     Neutral,
     Right,
+}
+
+enum PlayerState {
+    Idle,
+    Walking,
+    Jumping,
+    RollingStart,
+    Rolling,
+    RollingEnd,
+}
+
+impl Default for PlayerState {
+    fn default() -> Self { PlayerState::Idle }
 }
 
 #[godot_api]
@@ -40,13 +56,34 @@ impl ICharacterBody2D for Player {
         }
     }*/
 
-    fn physics_process(&mut self, delta: f64) {
+    fn ready(&mut self) {
+
+        self.status = PlayerState::Idle;
+
+        godot_print!("Player ready");
+    }
+
+    //fn physics_process(&mut self, delta: f64) {
+    fn process(&mut self, delta: f64) {
         let Vector2 {
             x: velocity_x,
             y: velocity_y,
         } = self.base().get_velocity();
 
         let input = Input::singleton();
+
+
+        let mut animated_sprite = self
+            .base()
+            .get_node_as::<AnimatedSprite2D>("AnimatedSprite2D");
+
+        let mut animated_player =  self
+            .base()
+            .get_node_as::<AnimationPlayer>("AnimationPlayer");
+        
+        let mut sprite = self
+            .base()
+            .get_node_as::<Sprite2D>("Sprite2D");
 
         // handle jump and gravity
         let new_velocity_y = if self.base().is_on_floor() {
@@ -69,8 +106,6 @@ impl ICharacterBody2D for Player {
             }
         };
 
-
-
         // Get input direction
         let direction = input.get_axis("move_left".into(), "move_right".into());
         let movement_direction = match direction {
@@ -80,27 +115,54 @@ impl ICharacterBody2D for Player {
             _ => unreachable!(),
         };
 
-        let mut animated_sprite = self
-            .base()
-            .get_node_as::<AnimatedSprite2D>("AnimatedSprite2D");
-
         // Flip the sprite to match movement direction
         match movement_direction {
-            MovementDirection::Right => animated_sprite.set_flip_h(true),
+            MovementDirection::Right => sprite.set_flip_h(true),
             MovementDirection::Neutral => {}
-            MovementDirection::Left => animated_sprite.set_flip_h(false),
+            MovementDirection::Left => sprite.set_flip_h(false),
         }
+
+        // TILE INTERACTION
+        // Node manager 
+        let nm = self.
+            node_manager.
+            as_ref().
+            unwrap();
+            
+        let val  = nm.get_node_as::<tileMapRules::NodeManager>("NodeManager").bind_mut().tile_collide.clone();
+    
+        let block = 3;
+
+        if self.debug {godot_print!("{} {}   {}    {} {}", val[0], val[1], val[2],val[3],val[4]);}
+    
+        let mut block = if (val[1] == block) || (val[3] == block) {
+            godot_print!("Block");
+            true
+        } else {
+            false
+        };
 
         // Play animation
         let animation = if self.base().is_on_floor() {
             match movement_direction {
-                MovementDirection::Neutral => "default",
-                MovementDirection::Left | MovementDirection::Right => "walk",
+                MovementDirection::Neutral => "Default",
+                MovementDirection::Left | MovementDirection::Right => {
+                    match block {
+                        true => "rollupstart",
+                        false => "walk",
+                    }
+                },
             }
         } else {
             "jump"
         };
-        animated_sprite.play_ex().name(animation.into()).done();
+        
+        //self.animated_sprite.play_ex().name(animation.into()).done();
+
+        animated_player.set_current_animation(animation.into());
+        animated_player.set_speed_scale(3.0);
+        animated_player.play();
+        // ENd Tile Interaction
 
         // Apply movement
         #[allow(clippy::cast_possible_truncation)]
@@ -117,24 +179,5 @@ impl ICharacterBody2D for Player {
         });
 
         self.base_mut().move_and_slide();
-
-       //godot_print!("In process function");
-        // Collision detetction
-       // let position = self.base().get_global_position();
-		//let tile = self.base().get_tree().unwrap().get_current_scene().unwrap().get_node_as("TileMapLayer").get_cellv(self.base().get_tree().unwrap().get_current_scene().unwrap().get_node("TileMapLayer").world_to_map(position));
-        
-        /*
-        let tile_map_layer = self
-            .base()
-            .get_tree()
-            .unwrap()
-            .get_current_scene()
-            .unwrap()
-            .get_node_as::<TileMapPattern>("TileMapLayer");
-            //.unwrap();
-        let p : Vector2i = Vector2i::new(position.x as i32, position.y as i32);
-        let tile = tile_map_layer.get_cell_tile_data(0,p).unwrap();  // Layer Position
-        godot_print!("Tile Value: {}", tile);
-        */
     }
 }
