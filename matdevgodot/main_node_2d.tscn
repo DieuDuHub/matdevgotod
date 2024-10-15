@@ -1,4 +1,4 @@
-[gd_scene load_steps=154 format=4 uid="uid://cua2h4qw64cu"]
+[gd_scene load_steps=156 format=4 uid="uid://cua2h4qw64cu"]
 
 [ext_resource type="Texture2D" uid="uid://bmscxdp34bnvy" path="res://assets/terrain1.png" id="2_ixn2c"]
 [ext_resource type="Texture2D" uid="uid://dujelv2av5hs8" path="res://assets/textureevolve.png" id="3_aka70"]
@@ -38,6 +38,23 @@ tracks/0/keys = {
 "values": [0]
 }
 
+[sub_resource type="Animation" id="Animation_hqfaj"]
+resource_name = "rollupstart"
+length = 0.78
+step = 0.041
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.041, 0.082, 0.123, 0.164, 0.205, 0.246, 0.287, 0.328, 0.369, 0.41, 0.451, 0.492, 0.533, 0.574, 0.615, 0.656),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114]
+}
+
 [sub_resource type="Animation" id="Animation_v8fuu"]
 resource_name = "walk"
 length = 2.15
@@ -55,10 +72,26 @@ tracks/0/keys = {
 "values": [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 79, 80, 80, 80]
 }
 
-[sub_resource type="Animation" id="Animation_hqfaj"]
-resource_name = "rollupstart"
-length = 0.78
-loop_mode = 1
+[sub_resource type="Animation" id="Animation_h334r"]
+resource_name = "jump"
+length = 0.82
+step = 0.82
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.041, 0.082, 0.123, 0.164, 0.205, 0.246, 0.287, 0.328, 0.369, 0.41, 0.451, 0.492, 0.533, 0.574, 0.615, 0.656, 0.697, 0.738, 0.779),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224]
+}
+
+[sub_resource type="Animation" id="Animation_imgcm"]
+resource_name = "rolling"
+length = 0.369
 step = 0.041
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -67,16 +100,18 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.041, 0.082, 0.123, 0.164, 0.205, 0.246, 0.287, 0.328, 0.369, 0.41, 0.451, 0.492, 0.533, 0.574, 0.615, 0.656),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.041, 0.082, 0.123, 0.164, 0.205, 0.246, 0.287),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114]
+"values": [115, 116, 117, 118, 119, 119, 116, 116]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_4pkoa"]
 _data = {
 "Default": SubResource("Animation_1fnpp"),
 "RESET": SubResource("Animation_6xtt0"),
+"jump": SubResource("Animation_h334r"),
+"rolling": SubResource("Animation_imgcm"),
 "rollupstart": SubResource("Animation_hqfaj"),
 "walk": SubResource("Animation_v8fuu")
 }
@@ -1134,7 +1169,6 @@ sources/0 = SubResource("TileSetAtlasSource_igpjo")
 [node name="mainNode2D" type="Node2D"]
 
 [node name="Player2" type="Player" parent="." node_paths=PackedStringArray("node_manager")]
-debug = true
 speed = 100.0
 jump_velocity = -300.0
 node_manager = NodePath("../GameEngineNode2D")
@@ -1194,4 +1228,4 @@ tile_set = SubResource("TileSet_iw7ay")
 [node name="TileMap" type="TileMap" parent="GameEngineNode2D/NodeManager"]
 tile_set = SubResource("TileSet_tx0ag")
 format = 2
-layer_0/tile_data = PackedInt32Array(-65551, 65536, 0, -65550, 65536, 0, -65549, 65536, 0, -15, 65536, 0, -14, 65536, 0, -13, 65536, 0, -12, 65536, 0, -11, 65536, 0, 65523, 65536, 0, 65524, 65536, 0, 65525, 65536, 0, 65526, 65536, 0, 65527, 65536, 0, 65528, 65536, 0, 65529, 65536, 0, 65530, 65536, 0, 65531, 65536, 0, 65532, 65536, 0, 65533, 65536, 0, 65534, 65536, 0, 65535, 65536, 0, 0, 65536, 0, 1, 65536, 0, 2, 65536, 0, 3, 65536, 0, 4, 65536, 0, 5, 65536, 0, 6, 65536, 0, 7, 65536, 0, 8, 65536, 0, 131061, 65536, 0, 131062, 65536, 0, 131063, 65536, 0, 131064, 65536, 0, 131065, 65536, 0, 131066, 65536, 0, 131067, 65536, 0, 131068, 65536, 0, 131069, 65536, 0, 131070, 65536, 0, 131071, 65536, 0, 65536, 65536, 0, 65537, 65536, 0, 65538, 65536, 0, 65539, 65536, 0, 65540, 65536, 0, 65541, 65536, 0, 65542, 65536, 0, 65543, 65536, 0, 65544, 65536, 0, -10, 65536, 0, -65529, 65536, 0, -65528, 65536, 0, -65527, 65536, 0, -65526, 65536, 0, -131062, 65536, 0, -131063, 65536, 0, -131061, 65536, 0, -131060, 65536, 0, -65524, 65536, 0, -65525, 65536, 0, 11, 65536, 0, 10, 65536, 0, 9, 65536, 0, -131091, 65536, 0, -196627, 65536, 0, -196626, 65536, 0, -131090, 65536, 0, -131089, 65536, 0, -196625, 65536, 0, -131093, 65536, 0, -131094, 65536, 0, -196630, 65536, 0, -196629, 65536, 0, -327668, 65536, 0, -6, 196608, 0, -5, 196608, 0, -4, 196608, 0, -65533, 196608, 0, -196598, 196608, 0, -262162, 196608, 0)
+layer_0/tile_data = PackedInt32Array(-65551, 65536, 0, -65550, 65536, 0, -65549, 65536, 0, -15, 65536, 0, -14, 65536, 0, -13, 65536, 0, -12, 65536, 0, 65523, 65536, 0, 65524, 65536, 0, 65525, 65536, 0, 65526, 65536, 0, 65527, 65536, 0, 65528, 65536, 0, 65529, 65536, 0, 65530, 65536, 0, 65531, 65536, 0, 65532, 65536, 0, 65533, 65536, 0, 65534, 65536, 0, 65535, 65536, 0, 0, 65536, 0, 1, 65536, 0, 2, 65536, 0, 3, 65536, 0, 4, 65536, 0, 5, 65536, 0, 6, 65536, 0, 7, 65536, 0, 8, 65536, 0, 131061, 65536, 0, 131062, 65536, 0, 131063, 65536, 0, 131064, 65536, 0, 131065, 65536, 0, 131066, 65536, 0, 131067, 65536, 0, 131068, 65536, 0, 131069, 65536, 0, 131070, 65536, 0, 131071, 65536, 0, 65536, 65536, 0, 65537, 65536, 0, 65538, 65536, 0, 65539, 65536, 0, 65540, 65536, 0, 65541, 65536, 0, 65542, 65536, 0, 65543, 65536, 0, 65544, 65536, 0, -65528, 65536, 0, -65527, 65536, 0, -65526, 65536, 0, -131062, 65536, 0, -131063, 65536, 0, -131061, 65536, 0, -131060, 65536, 0, -65524, 65536, 0, -65525, 65536, 0, 11, 65536, 0, 10, 65536, 0, 9, 65536, 0, -131091, 65536, 0, -196627, 65536, 0, -196626, 65536, 0, -131090, 65536, 0, -131089, 65536, 0, -196625, 65536, 0, -131093, 65536, 0, -131094, 65536, 0, -196630, 65536, 0, -196629, 65536, 0, -327668, 65536, 0, -5, 196608, 0, -4, 196608, 0, -196598, 196608, 0, -262162, 196608, 0)

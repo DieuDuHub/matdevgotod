@@ -23,6 +23,7 @@ struct Player{
     #[export]
     node_manager: Option<Gd<Node2D>>,
     status : PlayerState,
+    animation : String,
 }
 
 enum MovementDirection {
@@ -31,6 +32,7 @@ enum MovementDirection {
     Right,
 }
 
+#[derive(Clone, Copy,PartialEq)]
 enum PlayerState {
     Idle,
     Walking,
@@ -136,32 +138,57 @@ impl ICharacterBody2D for Player {
         if self.debug {godot_print!("{} {}   {}    {} {}", val[0], val[1], val[2],val[3],val[4]);}
     
         let mut block = if (val[1] == block) || (val[3] == block) {
-            godot_print!("Block");
+            //godot_print!("Block");
             true
         } else {
             false
         };
 
         // Play animation
-        let animation = if self.base().is_on_floor() {
-            match movement_direction {
-                MovementDirection::Neutral => "Default",
-                MovementDirection::Left | MovementDirection::Right => {
-                    match block {
-                        true => "rollupstart",
-                        false => "walk",
-                    }
-                },
+        let status = if self.status == PlayerState::RollingStart || self.status == PlayerState::Rolling && block {      // still on glissade
+                if !animated_player.is_playing() {
+                    PlayerState::Rolling
+                }   
+                else {
+                    PlayerState::Rolling
+                }
             }
-        } else {
-            "jump"
-        };
-        
-        //self.animated_sprite.play_ex().name(animation.into()).done();
+            else if self.base().is_on_floor() {
+                match movement_direction {
+                    MovementDirection::Neutral => PlayerState::Idle,
+                    MovementDirection::Left | MovementDirection::Right => {
+                        match block {
+                            true => PlayerState::RollingStart,
+                            false => PlayerState::Walking,
+                    }
+                }
+            }} else {
+                PlayerState::Jumping
+            };
 
-        animated_player.set_current_animation(animation.into());
-        animated_player.set_speed_scale(3.0);
-        animated_player.play();
+        let animation = match status {
+            PlayerState::Idle => "Default",
+            PlayerState::Walking => "walk",
+            PlayerState::Jumping => "jump",
+            PlayerState::RollingStart => "rollupstart",
+            PlayerState::Rolling => "rolling",
+            PlayerState::RollingEnd => "rollupstart",
+        };
+
+        // backup status
+        self.status = status;
+        
+      //  if !animated_player.is_playing() {
+            //self.animated_sprite.play_ex().name(animation.into()).done();
+            if animation != "" {
+                animated_player.set_current_animation(animation.into());
+                animated_player.set_speed_scale(3.0);
+                animated_player.play();
+            }
+            godot_print!("Animation {} new {}", self.animation,animation);
+      //  }
+
+        self.animation = animation.to_string();
         // ENd Tile Interaction
 
         // Apply movement

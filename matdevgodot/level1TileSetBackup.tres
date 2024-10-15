@@ -1,0 +1,32 @@
+[gd_resource type="TileSet" load_steps=4 format=3 uid="uid://ddf30pd8okph6"]
+
+[ext_resource type="Texture2D" uid="uid://bmscxdp34bnvy" path="res://assets/terrain1.png" id="1_g5q1h"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_rr07p"]
+polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4gtcd"]
+resource_name = "base"
+texture = ExtResource("1_g5q1h")
+2:0/0 = 0
+3:0/0 = 0
+3:0/0/occlusion_layer_0/polygon = SubResource("OccluderPolygon2D_rr07p")
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+4:0/0 = 0
+4:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -4.8125, 0.9375, -4.9375, 0.75, 7.3125, -0.875, 7.375, -1.125, -5.125, -8, -4.75)
+5:0/animation_separation = Vector2i(1, 0)
+5:0/animation_frame_0/duration = 1.0
+5:0/animation_frame_1/duration = 1.0
+5:0/0 = 0
+5:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-13.3125, -10.1875, -7.3125, -8, 8.4375, -8.4375, 8, -5.8125, 6.0625, -4.8125, 6.375, 8.6875, 4.8125, 8, 3.375, -4.6875, -3.5625, -4.8125, -3.875, 8, -5.875, 8, -6.125, -4.5, -8, -4.5, -8, -8)
+4:1/0 = 0
+5:1/0 = 0
+4:2/0 = 0
+
+[resource]
+occlusion_layer_0/light_mask = 1
+physics_layer_0/collision_layer = 3
+physics_layer_0/collision_mask = 3
+sources/0 = SubResource("TileSetAtlasSource_4gtcd")
