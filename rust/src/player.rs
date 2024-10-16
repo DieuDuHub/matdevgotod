@@ -1,12 +1,12 @@
 use godot::{
-    builtin::Vector2,builtin::Vector2i,
-    classes::{AnimatedSprite2D, Node2D, CharacterBody2D,Sprite2D, ICharacterBody2D, Input, ProjectSettings,AnimationPlayer},
+    builtin::Vector2,
+    classes::{Node2D, CharacterBody2D,Sprite2D, ICharacterBody2D, Input, ProjectSettings,AnimationPlayer},
     global::{godot_print, move_toward},
     obj::{Base, WithBaseField,Gd},
     prelude::{godot_api, GodotClass},
 };
 
-use crate::tileMapRules;
+use crate::tile_map_rules;
 
 #[derive(GodotClass)]
 #[class(init,base=CharacterBody2D)]
@@ -24,12 +24,18 @@ struct Player{
     node_manager: Option<Gd<Node2D>>,
     status : PlayerState,
     animation : String,
+    direction : f32,
 }
 
+#[derive(Clone, Copy,PartialEq)]
 enum MovementDirection {
     Left,
     Neutral,
     Right,
+}
+
+impl Default for MovementDirection {
+    fn default() -> Self { MovementDirection::Neutral }
 }
 
 #[derive(Clone, Copy,PartialEq)]
@@ -74,11 +80,6 @@ impl ICharacterBody2D for Player {
 
         let input = Input::singleton();
 
-
-        let mut animated_sprite = self
-            .base()
-            .get_node_as::<AnimatedSprite2D>("AnimatedSprite2D");
-
         let mut animated_player =  self
             .base()
             .get_node_as::<AnimationPlayer>("AnimationPlayer");
@@ -109,10 +110,22 @@ impl ICharacterBody2D for Player {
         };
 
         // Get input direction
-        let direction = input.get_axis("move_left".into(), "move_right".into());
-        let movement_direction = match direction {
+        let mut direction = input.get_axis("move_left".into(), "move_right".into());
+        let mut movement_direction = match direction {
             val if val < -f32::EPSILON => MovementDirection::Left,
-            val if (-f32::EPSILON..f32::EPSILON).contains(&val) => MovementDirection::Neutral,
+            val if (-f32::EPSILON..f32::EPSILON).contains(&val) => { 
+                    // if rolling and No move continue move
+                    if self.status == PlayerState::RollingStart || self.status == PlayerState::Rolling || self.status == PlayerState::RollingEnd {
+                        direction = self.direction;
+                        match self.direction {
+                            1.0 =>  MovementDirection::Right,
+                            _ =>  MovementDirection::Left
+                        }                            
+                    }
+                    else {
+                        MovementDirection::Neutral
+                    }
+            },
             val if val >= f32::EPSILON => MovementDirection::Right,
             _ => unreachable!(),
         };
@@ -131,13 +144,13 @@ impl ICharacterBody2D for Player {
             as_ref().
             unwrap();
             
-        let val  = nm.get_node_as::<tileMapRules::NodeManager>("NodeManager").bind_mut().tile_collide.clone();
+        let val  = nm.get_node_as::<tile_map_rules::NodeManager>("NodeManager").bind_mut().tile_collide.clone();
     
         let block = 3;
 
-        if self.debug {godot_print!("{} {}   {}    {} {}", val[0], val[1], val[2],val[3],val[4]);}
+        if self.debug {godot_print!("{} {} {}   {} {} {}   {} {} {}", val[0], val[1], val[2],val[3],val[4],val[5],val[6],val[7],val[8]);}
     
-        let mut block = if (val[1] == block) || (val[3] == block) {
+        let block = if val[4] == block {
             //godot_print!("Block");
             true
         } else {
@@ -145,13 +158,33 @@ impl ICharacterBody2D for Player {
         };
 
         // Play animation
-        let status = if self.status == PlayerState::RollingStart || self.status == PlayerState::Rolling && block {      // still on glissade
+        let status = if self.status == PlayerState::RollingStart && block {      // still on glissade
                 if !animated_player.is_playing() {
                     PlayerState::Rolling
                 }   
                 else {
-                    PlayerState::Rolling
+                    PlayerState::RollingStart
                 }
+            }
+            else if self.status == PlayerState::Rolling && block { // end of glissade
+                PlayerState::Rolling
+            }
+            else if self.status == PlayerState::Rolling && !block { // end of glissade
+                PlayerState::RollingEnd
+            }
+            else if self.status == PlayerState::RollingEnd { // end of glissade
+                if !animated_player.is_playing() { PlayerState::Idle }
+                else { PlayerState::RollingEnd }
+            }
+            else if self.status== PlayerState::Jumping && block { // jumping and follung on swipe
+                if sprite.is_flipped_h() { 
+                    movement_direction=MovementDirection::Right;direction = 1.0; 
+                 }
+                else { 
+                    movement_direction= MovementDirection::Left;direction = -1.0;
+                }
+                godot_print!("Jumping and following on swipe");
+                PlayerState::RollingStart
             }
             else if self.base().is_on_floor() {
                 match movement_direction {
@@ -172,7 +205,7 @@ impl ICharacterBody2D for Player {
             PlayerState::Jumping => "jump",
             PlayerState::RollingStart => "rollupstart",
             PlayerState::Rolling => "rolling",
-            PlayerState::RollingEnd => "rollupstart",
+            PlayerState::RollingEnd => "rollupend",
         };
 
         // backup status
@@ -182,17 +215,17 @@ impl ICharacterBody2D for Player {
             //self.animated_sprite.play_ex().name(animation.into()).done();
             if animation != "" {
                 animated_player.set_current_animation(animation.into());
-                animated_player.set_speed_scale(3.0);
+                //animated_player.set_speed_scale(5.0);
                 animated_player.play();
             }
-            godot_print!("Animation {} new {}", self.animation,animation);
+            //if self.debug { godot_print!("Animation {} new {}", self.animation,animation); }
       //  }
 
-        self.animation = animation.to_string();
         // ENd Tile Interaction
 
         // Apply movement
         #[allow(clippy::cast_possible_truncation)]
+
         let new_velocity_x = match movement_direction {
             MovementDirection::Neutral => {
                 move_toward(f64::from(velocity_x), 0.0, self.speed) as f32
@@ -206,5 +239,9 @@ impl ICharacterBody2D for Player {
         });
 
         self.base_mut().move_and_slide();
+
+        self.animation = animation.to_string();
+        self.direction = direction;
+
     }
 }

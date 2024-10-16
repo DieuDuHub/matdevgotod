@@ -1,7 +1,7 @@
 use godot::{
-    builtin::Vector2,builtin::Vector2i,
-    classes::{ ProjectSettings,INode2D,Node2D,CharacterBody2D,TileMap},
-    global::{godot_print, move_toward},
+    builtin::Vector2i,
+    classes::{ INode2D,Node2D,CharacterBody2D,TileMap},
+    global::{godot_print},
     obj::{Base, WithBaseField,Gd},
     prelude::{godot_api, GodotClass},
 };
@@ -51,14 +51,14 @@ impl INode2D for NodeManager {
         
         self.tile_collide = Vec::new();
 
-        let mut p1 = tile_map_layer.local_to_map(position);
+        let p1 = tile_map_layer.local_to_map(position);
 
         /*
         detection following
 
-        *  *
-        *  *
-         * 
+        1* 6* 9*
+        2* 5* 8*
+        3* 4* 7*
 
         counter-clockwise
 
@@ -69,14 +69,18 @@ impl INode2D for NodeManager {
        let mod_vector : Vec<Vector2i> = vec![
         Vector2i::new(-1,-1),
         Vector2i::new(-1,0),
+        Vector2i::new(-1,1),
+        Vector2i::new(0,-1),
+        Vector2i::new(0,0),
         Vector2i::new(0,1),
-        Vector2i::new(1,0),
         Vector2i::new(1,-1),
+        Vector2i::new(1,0),
+        Vector2i::new(1,1),
        ];
 
        mod_vector.iter().for_each(|v| {
         let target = p1+ *v;
-           let mut tile = tile_map_layer.get_cell_atlas_coords(0,target); // derefn v before adding
+           let tile = tile_map_layer.get_cell_atlas_coords(0,target); // derefn v before adding
            if self.debug {godot_print!("Tile: {:?} at x: {}, y:{}" ,tile, target.x, target.y);}
            self.tile_collide.push(tile.x + tile.y*sizegrid);
        });

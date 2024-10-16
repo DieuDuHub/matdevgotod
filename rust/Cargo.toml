@@ -1,5 +1,5 @@
 [package]
-name = "librust"
+name = "rust"
 version = "0.1.0"
 authors = ["Debray Matthieu"]
 edition = "2021"

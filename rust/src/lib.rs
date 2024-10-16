@@ -1,7 +1,7 @@
 #![warn(clippy::all, clippy::pedantic)]
 
 mod player;
-mod tileMapRules;
+mod tile_map_rules;
 use godot::{init::ExtensionLibrary, prelude::gdextension};
 
 struct MatDev;
