@@ -46,6 +46,8 @@ enum PlayerState {
     RollingStart,
     Rolling,
     RollingEnd,
+    Grabbing,
+    Holding,
 }
 
 impl Default for PlayerState {
@@ -88,7 +90,7 @@ impl ICharacterBody2D for Player {
             .base()
             .get_node_as::<Sprite2D>("Sprite2D");
 
-        // handle jump and gravity
+        // handle jump and gravity if not grabbing
         let new_velocity_y = if self.base().is_on_floor() {
             if input.is_action_pressed("jump".into()) {
                 #[allow(clippy::cast_possible_truncation)]
@@ -149,7 +151,22 @@ impl ICharacterBody2D for Player {
         let block = 3;
 
         if self.debug {godot_print!("{} {} {}   {} {} {}   {} {} {}", val[0], val[1], val[2],val[3],val[4],val[5],val[6],val[7],val[8]);}
-    
+
+
+        let mut grab = false;
+        if velocity_y > 0.0 {
+            if val[1] == 1 || val[8]  ==1 {
+               grab =  true
+            }
+            else {
+                grab =  false
+            } 
+        } else {
+            grab =  false
+        }
+
+        godot_print!("grab : {} {}",grab,velocity_y);
+
         let block = if val[4] == block {
             //godot_print!("Block");
             true
@@ -183,8 +200,11 @@ impl ICharacterBody2D for Player {
                 else { 
                     movement_direction= MovementDirection::Left;direction = -1.0;
                 }
-                godot_print!("Jumping and following on swipe");
+                //godot_print!("Jumping and following on swipe");
                 PlayerState::RollingStart
+            }
+            else if self.status == PlayerState::Jumping && !block { // jumping and not following on swipe
+                PlayerState::Grabbing
             }
             else if self.base().is_on_floor() {
                 match movement_direction {
@@ -206,6 +226,8 @@ impl ICharacterBody2D for Player {
             PlayerState::RollingStart => "rollupstart",
             PlayerState::Rolling => "rolling",
             PlayerState::RollingEnd => "rollupend",
+            PlayerState::Grabbing => "jump",
+            PlayerState::Holding => "jump",
         };
 
         // backup status
