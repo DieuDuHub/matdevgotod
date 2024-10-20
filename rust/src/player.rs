@@ -90,26 +90,31 @@ impl ICharacterBody2D for Player {
             .base()
             .get_node_as::<Sprite2D>("Sprite2D");
 
+        let mut new_velocity_y = 0.0;
+
         // handle jump and gravity if not grabbing
-        let new_velocity_y = if self.base().is_on_floor() {
-            if input.is_action_pressed("jump".into()) {
-                #[allow(clippy::cast_possible_truncation)]
-                {
-                    self.jump_velocity as f32
+        if self.status != PlayerState::Grabbing 
+        {
+            new_velocity_y = if self.base().is_on_floor() {
+                if input.is_action_pressed("jump".into()) {
+                    #[allow(clippy::cast_possible_truncation)]
+                    {
+                        self.jump_velocity as f32
+                    }
+                } else {
+                    velocity_y
                 }
             } else {
-                velocity_y
-            }
-        } else {
-            let gravity = ProjectSettings::singleton()
-                .get_setting("physics/2d/default_gravity".into())
-                .try_to::<f64>()
-                .expect("Should be able to represent default gravity as a 32-bit float");
-            #[allow(clippy::cast_possible_truncation)]
-            {
-                velocity_y + (gravity * delta) as f32
-            }
-        };
+                let gravity = ProjectSettings::singleton()
+                    .get_setting("physics/2d/default_gravity".into())
+                    .try_to::<f64>()
+                    .expect("Should be able to represent default gravity as a 32-bit float");
+                #[allow(clippy::cast_possible_truncation)]
+                {
+                    velocity_y + (gravity * delta) as f32
+                }
+            };
+        }
 
         // Get input direction
         let mut direction = input.get_axis("move_left".into(), "move_right".into());
@@ -155,7 +160,7 @@ impl ICharacterBody2D for Player {
 
         let mut grab = false;
         if velocity_y > 0.0 {
-            if val[1] == 1 || val[8]  ==1 {
+            if val[0] == 1 || val[8]  == 1 {
                grab =  true
             }
             else {
@@ -203,9 +208,15 @@ impl ICharacterBody2D for Player {
                 //godot_print!("Jumping and following on swipe");
                 PlayerState::RollingStart
             }
-            else if self.status == PlayerState::Jumping && !block { // jumping and not following on swipe
+            else if self.status == PlayerState::Jumping && grab { // jumping and not following on swipe
                 PlayerState::Grabbing
             }
+            else if self.status == PlayerState::Grabbing && !grab { // end of grabbing
+                PlayerState::Jumping
+            }
+            /*else if self.status == PlayerState::Holding && !block { // end of holding
+                PlayerState::Jumping
+            }*/
             else if self.base().is_on_floor() {
                 match movement_direction {
                     MovementDirection::Neutral => PlayerState::Idle,
