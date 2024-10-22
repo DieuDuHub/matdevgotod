@@ -10,7 +10,7 @@ use crate::tile_map_rules;
 
 #[derive(GodotClass)]
 #[class(init,base=CharacterBody2D)]
-struct Player{
+struct PlayerAdvanced{
     #[export]
     debug : bool,
     #[export]
@@ -55,7 +55,7 @@ impl Default for PlayerState {
 }
 
 #[godot_api]
-impl ICharacterBody2D for Player {
+impl ICharacterBody2D for PlayerAdvanced {
    /* fn init(base: Base<CharacterBody2D>) -> Self {
         godot_print!("Initialise player Rust class");
         Self {
@@ -90,9 +90,7 @@ impl ICharacterBody2D for Player {
             .base()
             .get_node_as::<Sprite2D>("Sprite2D");
 
-        let mut new_velocity_y = velocity_y;
-
-        // player input ==> what he
+        let mut new_velocity_y = 0.0;
 
         // handle jump and gravity if not grabbing
         if self.status != PlayerState::Grabbing 
