@@ -56,9 +56,11 @@ impl INode2D for NodeManager {
         /*
         detection following
 
-        1* 6* 9*
-        2* 5* 8*
-        3* 4* 7*
+
+        1* 8* 12*
+        2* 7* 11*
+        3* 6* 10*       *
+        4* 5* 9*        *
 
         counter-clockwise
 
@@ -67,15 +69,18 @@ impl INode2D for NodeManager {
        let sizegrid = 32; 
 
        let mod_vector : Vec<Vector2i> = vec![
+        Vector2i::new(-1,-2),
         Vector2i::new(-1,-1),
         Vector2i::new(-1,0),
         Vector2i::new(-1,1),
-        Vector2i::new(0,-1),
-        Vector2i::new(0,0),
         Vector2i::new(0,1),
-        Vector2i::new(1,-1),
-        Vector2i::new(1,0),
+        Vector2i::new(0,0),
+        Vector2i::new(0,-1),
+        Vector2i::new(0,-2),
         Vector2i::new(1,1),
+        Vector2i::new(1,0),
+        Vector2i::new(1,-1),
+        Vector2i::new(1,-2),
        ];
 
        mod_vector.iter().for_each(|v| {

@@ -1210,10 +1210,12 @@ sources/0 = SubResource("TileSetAtlasSource_igpjo")
 [node name="mainNode2D" type="Node2D"]
 
 [node name="Player2" type="Player" parent="." node_paths=PackedStringArray("node_manager")]
+debug = true
 speed = 100.0
-jump_velocity = -300.0
+jump_velocity = -400.0
 node_manager = NodePath("../GameEngineNode2D")
-position = Vector2(0, -90)
+visible = false
+position = Vector2(-18, -90)
 scale = Vector2(0.65, 0.65)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player2"]
@@ -1251,6 +1253,38 @@ hframes = 17
 vframes = 15
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+visible = false
+position = Vector2(-200, 16)
+occluder = SubResource("OccluderPolygon2D_3w123")
+
+[node name="PlayerAdvance" type="PlayerAdvance" parent="." node_paths=PackedStringArray("node_manager")]
+speed = 100.0
+jump_velocity = -400.0
+node_manager = NodePath("../GameEngineNode2D")
+position = Vector2(2, -90)
+scale = Vector2(0.65, 0.65)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerAdvance"]
+position = Vector2(6, 6)
+shape = SubResource("RectangleShape2D_iarbc")
+
+[node name="PointLight2D" type="PointLight2D" parent="PlayerAdvance"]
+position = Vector2(-4, -159)
+shadow_enabled = true
+texture = ExtResource("3_ode34")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="PlayerAdvance"]
+libraries = {
+"": SubResource("AnimationLibrary_4pkoa")
+}
+
+[node name="Sprite2D" type="Sprite2D" parent="PlayerAdvance"]
+position = Vector2(0, -19)
+texture = ExtResource("3_d60tv")
+hframes = 17
+vframes = 15
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="PlayerAdvance"]
 visible = false
 position = Vector2(-200, 16)
 occluder = SubResource("OccluderPolygon2D_3w123")

@@ -10,7 +10,7 @@ use crate::tile_map_rules;
 
 #[derive(GodotClass)]
 #[class(init,base=CharacterBody2D)]
-struct PlayerAdvanced{
+struct PlayerAdvance{
     #[export]
     debug : bool,
     #[export]
@@ -48,6 +48,7 @@ enum PlayerState {
     RollingEnd,
     Grabbing,
     Holding,
+    Releasing,
 }
 
 impl Default for PlayerState {
@@ -55,7 +56,7 @@ impl Default for PlayerState {
 }
 
 #[godot_api]
-impl ICharacterBody2D for PlayerAdvanced {
+impl ICharacterBody2D for PlayerAdvance {
    /* fn init(base: Base<CharacterBody2D>) -> Self {
         godot_print!("Initialise player Rust class");
         Self {
@@ -90,11 +91,13 @@ impl ICharacterBody2D for PlayerAdvanced {
             .base()
             .get_node_as::<Sprite2D>("Sprite2D");
 
-        let mut new_velocity_y = 0.0;
+        let mut new_velocity_y = velocity_y;
+
+        // player input ==> what he
 
         // handle jump and gravity if not grabbing
-        if self.status != PlayerState::Grabbing 
-        {
+       // if self.status != PlayerState::Grabbing 
+       // {
             new_velocity_y = if self.base().is_on_floor() {
                 if input.is_action_pressed("jump".into()) {
                     #[allow(clippy::cast_possible_truncation)]
@@ -104,7 +107,11 @@ impl ICharacterBody2D for PlayerAdvanced {
                 } else {
                     velocity_y
                 }
-            } else {
+            } else if self.status == PlayerState::Grabbing &&  input.is_action_pressed("jump".into()) {
+                    self.status == PlayerState::Releasing;
+                    0.0
+                }
+            else {
                 let gravity = ProjectSettings::singleton()
                     .get_setting("physics/2d/default_gravity".into())
                     .try_to::<f64>()
@@ -114,7 +121,7 @@ impl ICharacterBody2D for PlayerAdvanced {
                     velocity_y + (gravity * delta) as f32
                 }
             };
-        }
+        //}
 
         // Get input direction
         let mut direction = input.get_axis("move_left".into(), "move_right".into());
@@ -155,12 +162,12 @@ impl ICharacterBody2D for PlayerAdvanced {
     
         let block = 3;
 
-        if self.debug {godot_print!("{} {} {}   {} {} {}   {} {} {}", val[0], val[1], val[2],val[3],val[4],val[5],val[6],val[7],val[8]);}
+        if self.debug {godot_print!("{} {} {} {}   {} {} {} {}   {} {} {} {}", val[0], val[1], val[2],val[3],val[4],val[5],val[6],val[7],val[8],val[9],val[10],val[11]);}
 
 
         let mut grab = false;
-        if velocity_y > 0.0 {
-            if val[0] == 1 || val[8]  == 1 {
+        if velocity_y >= 0.0 {
+            if (val[1] == 1 && val[0] == -33)|| (val[10]  == 1 && val[11] == -33) {
                grab =  true
             }
             else {
@@ -172,7 +179,7 @@ impl ICharacterBody2D for PlayerAdvanced {
 
         godot_print!("grab : {} {}",grab,velocity_y);
 
-        let block = if val[4] == block {
+        let block = if val[5] == block {
             //godot_print!("Block");
             true
         } else {
@@ -214,6 +221,9 @@ impl ICharacterBody2D for PlayerAdvanced {
             else if self.status == PlayerState::Grabbing && !grab { // end of grabbing
                 PlayerState::Jumping
             }
+            else if self.status == PlayerState::Releasing { // end of releasing
+                PlayerState::Releasing
+            }
             /*else if self.status == PlayerState::Holding && !block { // end of holding
                 PlayerState::Jumping
             }*/
@@ -239,6 +249,7 @@ impl ICharacterBody2D for PlayerAdvanced {
             PlayerState::RollingEnd => "rollupend",
             PlayerState::Grabbing => "jump",
             PlayerState::Holding => "jump",
+            PlayerState::Releasing => "jump",
         };
 
         // backup status
@@ -268,7 +279,7 @@ impl ICharacterBody2D for PlayerAdvanced {
 
         self.base_mut().set_velocity(Vector2 {
             x: new_velocity_x,
-            y: new_velocity_y,
+            y: if !grab {new_velocity_y} else {0.0},
         });
 
         self.base_mut().move_and_slide();
