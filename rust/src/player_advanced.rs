@@ -25,6 +25,7 @@ struct PlayerAdvance{
     status : PlayerState,
     animation : String,
     direction : f32,
+    pub tile_collide : Vec<i32>,
 }
 
 #[derive(Clone, Copy,PartialEq)]
@@ -159,16 +160,16 @@ impl ICharacterBody2D for PlayerAdvance {
             unwrap();
             
         let val  = nm.get_node_as::<tile_map_rules::NodeManager>("NodeManager").bind_mut().tile_collide.clone();
-    
         let block = 3;
 
-        if self.debug {godot_print!("{} {} {} {}   {} {} {} {}   {} {} {} {}", val[0], val[1], val[2],val[3],val[4],val[5],val[6],val[7],val[8],val[9],val[10],val[11]);}
+        if self.tile_collide != val {godot_print!("-------\n{} {} {}\n{} {} {}\n{} {} {}\n{} {} {}\n", val[3], val[7], val[11],val[2],val[6],val[10],val[1],val[5],val[9],val[0],val[4],val[8]);}
 
+        self.tile_collide = val.clone();
 
         let mut grab = false;
         if velocity_y >= 0.0 {
             if (val[1] == 1 && val[0] == -33)|| (val[10]  == 1 && val[11] == -33) {
-               grab =  true
+               grab =  false // uniactivate
             }
             else {
                 grab =  false
@@ -177,7 +178,7 @@ impl ICharacterBody2D for PlayerAdvance {
             grab =  false
         }
 
-        godot_print!("grab : {} {}",grab,velocity_y);
+       // if self.debug {godot_print!("grab : {} {}",grab,velocity_y);}
 
         let block = if val[5] == block {
             //godot_print!("Block");

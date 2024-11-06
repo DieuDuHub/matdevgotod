@@ -172,7 +172,7 @@ impl ICharacterBody2D for Player {
             grab =  false
         }
 
-        godot_print!("grab : {} {}",grab,velocity_y);
+        //godot_print!("grab : {} {}",grab,velocity_y);
 
         let block = if val[5] == block {
             //godot_print!("Block");

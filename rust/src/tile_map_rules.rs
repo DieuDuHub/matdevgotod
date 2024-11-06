@@ -57,10 +57,10 @@ impl INode2D for NodeManager {
         detection following
 
 
-        1* 8* 12*
-        2* 7* 11*
-        3* 6* 10*       *
-        4* 5* 9*        *
+        3* 7* 11*
+        2* 6* 10*
+        1* 5* 9*       *
+        0* 4* 8*        *
 
         counter-clockwise
 
@@ -69,14 +69,16 @@ impl INode2D for NodeManager {
        let sizegrid = 32; 
 
        let mod_vector : Vec<Vector2i> = vec![
-        Vector2i::new(-1,-2),
-        Vector2i::new(-1,-1),
-        Vector2i::new(-1,0),
         Vector2i::new(-1,1),
+        Vector2i::new(-1,0),
+        Vector2i::new(-1,-1),
+        Vector2i::new(-1,-2),
+
         Vector2i::new(0,1),
         Vector2i::new(0,0),
         Vector2i::new(0,-1),
         Vector2i::new(0,-2),
+
         Vector2i::new(1,1),
         Vector2i::new(1,0),
         Vector2i::new(1,-1),
@@ -84,7 +86,7 @@ impl INode2D for NodeManager {
        ];
 
        mod_vector.iter().for_each(|v| {
-        let target = p1+ *v;
+        let target = p1+ *v + Vector2i::new(1,0);
            let tile = tile_map_layer.get_cell_atlas_coords(0,target); // derefn v before adding
            if self.debug {godot_print!("Tile: {:?} at x: {}, y:{}" ,tile, target.x, target.y);}
            self.tile_collide.push(tile.x + tile.y*sizegrid);
@@ -117,7 +119,7 @@ impl INode2D for NodeManager {
         p1.y -= 1 ;
         tile = tile_map_layer.get_cell_atlas_coords(0,p1);
         if self.debug {   godot_print!("TileL: {:?} at x: {}, y:{}" ,tile, p1.x, p1.y);}
-        self.tile_collide.push(tile.x + tile.y*sizegrid);
+        //self.tile_collide.push(tile.x + tile.y*sizegrid);
         */
     }
 }
